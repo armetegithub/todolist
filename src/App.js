@@ -1,26 +1,101 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import allColors from "./styles/colors";
+import { createGlobalStyle } from "styled-components";
+import FormTask from "./components/FormTask";
+import Task from "./components/Task";
+import { generate as id } from "shortid";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const GlobalStyle = createGlobalStyle`
+
+body{
+    font-family: sans-serif;
+    background-color: #222;
+    color:${allColors.mainColor};
+    text-align: center;
+    margin: 0
+}
+`;
+
+class App extends Component {
+  state = {
+    colorSelected: allColors.colors[0],
+    tasks: [
+      {
+        title: "Aprender React",
+        color: allColors.colors[0],
+        done: false,
+      },
+    ],
+  };
+
+  getTask = (id) => {
+    const task = this.state.tasks.find((task) => task.id === id);
+    return task;
+  };
+
+  handleCompleteTask = (id) => {
+    const currentTasks = this.state.tasks;
+    const task = this.getTask(id);
+    const index = currentTasks.indexOf(task);
+    currentTasks[index].done = !currentTasks[index].done;
+    this.setState({ task: currentTasks });
+  };
+
+  handleSubmit = (e) => {
+    e.preventDefault();
+    if (e.target.title.value.trim() !== "") {
+      this.createNewTask(e.target.title.value);
+      e.target.title.value = "";
+    }
+  };
+
+  handledeleteTask = (id) => {
+    let currentTasks = this.state.tasks;
+    currentTasks = currentTasks.filter((task) => task.id !== id);
+    this.setState({ tasks: currentTasks });
+  };
+
+  createNewTask = (title) => {
+    const newTask = {
+      id: id(),
+      title,
+      color: this.state.colorSelected,
+      done: false,
+    };
+
+    const allTasks = [...this.state.tasks, newTask];
+    this.setState({ tasks: allTasks });
+  };
+  handleChangeColor = (color) => {
+    this.setState({ colorSelected: color });
+  };
+  render() {
+    const { colorSelected, tasks } = this.state;
+    return (
+      <>
+        <GlobalStyle />
+        <h1>To Do List</h1>
+        <FormTask
+          handleChangeColor={this.handleChangeColor}
+          handleSubmit={this.handleSubmit}
+          colorSelected={colorSelected}
+        />
+        {this.state.tasks.length === 0 && <p>No Task yet</p>}
+        <div>
+          {tasks.map((task) => (
+            <Task
+              key={id()}
+              done={task.done}
+              title={task.title}
+              color={task.color}
+              handleCompleteTask={() => this.handleCompleteTask(task.id)}
+              handledeleteTask={() => this.handledeleteTask(task.id)}
+            />
+          ))}
+        </div>
+      </>
+    );
+  }
 }
 
 export default App;
