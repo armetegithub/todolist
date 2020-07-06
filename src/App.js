@@ -61,7 +61,7 @@ const App = () => {
   return (
     <>
       <GlobalStyle />
-      <h1>To Do List</h1>
+      <h1>To Do List con Hooks</h1>
       <FormTask
         handleChangeColor={handleChangeColor}
         handleSubmit={handleSubmit}
